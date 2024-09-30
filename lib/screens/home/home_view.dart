@@ -11,6 +11,8 @@ import 'package:pixabay_demo/appstyle/app_spacing.dart';
 import 'package:pixabay_demo/appstyle/text_box_decoration.dart';
 import 'package:pixabay_demo/screens/home/home_controller.dart';
 import 'package:pixabay_demo/widgets/format_helper.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class HomeView extends StatelessWidget {
   var dsh = Get.isRegistered<HomeController>()
