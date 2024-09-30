@@ -40,6 +40,10 @@ dependencies:
   dio: ^5.7.0
   get_it: ^8.0.0
   easy_localization: ^3.0.7
+  path_provider: ^2.1.4
+  permission_handler: ^11.3.1
+  another_flushbar: ^1.12.30
+  gallery_saver_plus: ^3.0.1
 
 dev_dependencies:
   flutter_test:

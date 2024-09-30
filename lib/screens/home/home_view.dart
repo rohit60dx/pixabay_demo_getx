@@ -50,7 +50,7 @@ class HomeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSpacing.h10, 
+          AppSpacing.h10,
           SizedBox(
             width: double.infinity,
             height: AppDimensions.d60.h,
@@ -107,10 +107,27 @@ class HomeView extends StatelessWidget {
                           itemCount: controller.imagesData.hits!.length,
                           itemBuilder: (context, index) {
                             final image = controller.imagesData.hits![index];
-                            return ImageTile(
-                              imageUrl: image.webformatURL!,
-                              likes: image.likes!,
-                              views: image.views!,
+                            return Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                ImageTile(
+                                  imageUrl: image.webformatURL!,
+                                  likes: image.likes!,
+                                  views: image.views!,
+                                ),
+                                !kIsWeb &&
+                                        (Platform.isAndroid || Platform.isIOS)
+                                    ? IconButton(
+                                        onPressed: () async {
+                                          await controller.downloadImage(
+                                              context, image.webformatURL!);
+                                        },
+                                        icon: Icon(
+                                          Icons.download,
+                                          color: AppColors.colorC5C6CC,
+                                        ))
+                                    : Container()
+                              ],
                             );
                           },
                         );
