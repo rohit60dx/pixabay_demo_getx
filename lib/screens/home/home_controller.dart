@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pixabay_demo/appstyle/app_colors.dart';
@@ -21,7 +20,7 @@ class HomeController extends GetxController {
   bool isLoading = true;
   bool hasMoreData = true;
   int currentPage = 1;
-
+  bool isInternetConnected = false;
   @override
   void onInit() {
     super.onInit();
@@ -41,6 +40,7 @@ class HomeController extends GetxController {
       final model = await api.getImages(
           searchQuery: searchController.text, page: currentPage);
       if (model != null) {
+        isInternetConnected = true;
         isLoading = false;
         if (isPageLoading) {
           imagesData.hits!.addAll(model.hits!);
@@ -55,7 +55,11 @@ class HomeController extends GetxController {
       isLoading = false;
       update();
     } on SocketException {
+      isInternetConnected = false;
       isLoading = false;
+      debugPrint("not internet");
+      DialogHelper.message("No Internet!",
+          bgColor: AppColors.redColor, color: AppColors.whiteColor);
       update();
     }
   }
@@ -116,11 +120,9 @@ class HomeController extends GetxController {
       DialogHelper.showDialogWithButton(Get.context!,
           "we_need_storage_access".tr, "storage_permission_denied".tr,
           barrierDismissible: true, positiveButtonPress: () async {
-         Get.back();
+        Get.back();
         await openAppSettings();
       });
-
-      print("hello 2");
     }
     return status.isGranted;
   }

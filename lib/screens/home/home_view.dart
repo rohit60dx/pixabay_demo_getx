@@ -97,42 +97,57 @@ class HomeView extends StatelessWidget {
                   return controller.imagesData.total == 0
                       ? Text("searched_category_not_found")
                           .regularText(AppColors.blackColor, AppDimensions.d14)
-                      : GridView.builder(
-                          controller: controller.scrollController,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            crossAxisSpacing: 8.0,
-                            mainAxisSpacing: 8.0,
-                            childAspectRatio: 1,
-                          ),
-                          itemCount: controller.imagesData.hits!.length,
-                          itemBuilder: (context, index) {
-                            final image = controller.imagesData.hits![index];
-                            return Stack(
-                              alignment: Alignment.topRight,
+                      : controller.isInternetConnected
+                          ? GridView.builder(
+                              controller: controller.scrollController,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 8.0,
+                                mainAxisSpacing: 8.0,
+                                childAspectRatio: 1,
+                              ),
+                              itemCount: controller.imagesData.hits!.length,
+                              itemBuilder: (context, index) {
+                                final image =
+                                    controller.imagesData.hits![index];
+                                return Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    ImageTile(
+                                      imageUrl: image.webformatURL!,
+                                      likes: image.likes!,
+                                      views: image.views!,
+                                    ),
+                                    !kIsWeb &&
+                                            (Platform.isAndroid ||
+                                                Platform.isIOS)
+                                        ? IconButton(
+                                            onPressed: () async {
+                                              await controller.downloadImage(
+                                                  context, image.webformatURL!);
+                                            },
+                                            icon: Icon(
+                                              Icons.download,
+                                              color: AppColors.colorC5C6CC,
+                                            ))
+                                        : Container()
+                                  ],
+                                );
+                              },
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ImageTile(
-                                  imageUrl: image.webformatURL!,
-                                  likes: image.likes!,
-                                  views: image.views!,
+                                AppSpacing.h10,
+                                Icon(
+                                  Icons.wifi_off_outlined,
+                                  size: AppDimensions.d60,
+                                  color: AppColors.color808187,
                                 ),
-                                !kIsWeb &&
-                                        (Platform.isAndroid || Platform.isIOS)
-                                    ? IconButton(
-                                        onPressed: () async {
-                                          await controller.downloadImage(
-                                              context, image.webformatURL!);
-                                        },
-                                        icon: Icon(
-                                          Icons.download,
-                                          color: AppColors.colorC5C6CC,
-                                        ))
-                                    : Container()
+                                Center(child: Text("No Internet!"))
                               ],
                             );
-                          },
-                        );
                 },
               ),
             ),
