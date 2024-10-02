@@ -44,6 +44,8 @@ dependencies:
   permission_handler: ^11.3.1
   another_flushbar: ^1.12.30
   gallery_saver_plus: ^3.0.1
+  internet_connection_checker: ^1.0.0+1
+  connectivity_plus: ^3.0.3
 
 dev_dependencies:
   flutter_test:

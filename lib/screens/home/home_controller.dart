@@ -1,8 +1,13 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pixabay_demo/appstyle/app_colors.dart';
@@ -20,13 +25,15 @@ class HomeController extends GetxController {
   bool isLoading = true;
   bool hasMoreData = true;
   int currentPage = 1;
-  bool isInternetConnected = false;
+  RxBool isInternetConnected = false.obs;
   @override
   void onInit() {
-    super.onInit();
-    fetchImages();
+     fetchImages();
+    checkInternetConnection();
+
     scrollController = ScrollController();
     scrollController.addListener(scrollListener);
+    super.onInit();
   }
 
   Future<void> fetchImages({bool isPageLoading = false}) async {
@@ -40,7 +47,7 @@ class HomeController extends GetxController {
       final model = await api.getImages(
           searchQuery: searchController.text, page: currentPage);
       if (model != null) {
-        isInternetConnected = true;
+        isInternetConnected.value = true;
         isLoading = false;
         if (isPageLoading) {
           imagesData.hits!.addAll(model.hits!);
@@ -55,7 +62,7 @@ class HomeController extends GetxController {
       isLoading = false;
       update();
     } on SocketException {
-      isInternetConnected = false;
+      isInternetConnected.value = false;
       isLoading = false;
       debugPrint("not internet");
       DialogHelper.message("No Internet!",
@@ -125,5 +132,35 @@ class HomeController extends GetxController {
       });
     }
     return status.isGranted;
+  }
+
+  Future<bool> checkInternetConnection() async {
+    bool result = await InternetConnectionChecker().hasConnection;
+    if (result == true) {
+    } else {
+      debugPrint("Please Connect to the internet !");
+    }
+    Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) async {
+      if (result != ConnectivityResult.none) {
+        final hasInternetConnected =
+            await InternetConnectionChecker().hasConnection;
+        if (hasInternetConnected) {
+         await fetchImages(); 
+          isInternetConnected.value = true;
+          update();
+        } else {
+          debugPrint("Please Connect to the internet !");
+          isInternetConnected.value = false;
+          update();
+        }
+      } else {
+        debugPrint("Please Connect to the internet !");
+        isInternetConnected.value = false;
+        update();
+      }
+    });
+    return true;
   }
 }

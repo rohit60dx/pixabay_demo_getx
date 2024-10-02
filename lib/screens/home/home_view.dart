@@ -24,13 +24,19 @@ class HomeView extends StatelessWidget {
     return GetBuilder<HomeController>(
         builder: (controller) => Scaffold(
             appBar: _appBar(),
-            body: Container(
-              color: AppColors.whiteColor,
-              child: Column(
-                children: [
-                  _searchTextFormField(controller),
-                  _imagesWidget(controller),
-                ],
+            body: RefreshIndicator(
+              onRefresh: () async {
+                Future.delayed(Duration(milliseconds: 1000));
+                await controller.fetchImages();
+              },
+              child: Container(
+                color: AppColors.whiteColor,
+                child: Column(
+                  children: [
+                    _searchTextFormField(controller),
+                    _imagesWidget(controller),
+                  ],
+                ),
               ),
             )));
   }
@@ -97,7 +103,7 @@ class HomeView extends StatelessWidget {
                   return controller.imagesData.total == 0
                       ? Text("searched_category_not_found")
                           .regularText(AppColors.blackColor, AppDimensions.d14)
-                      : controller.isInternetConnected
+                      :  Obx(() =>  controller.isInternetConnected.value
                           ? GridView.builder(
                               controller: controller.scrollController,
                               gridDelegate:
@@ -147,7 +153,7 @@ class HomeView extends StatelessWidget {
                                 ),
                                 Center(child: Text("No Internet!"))
                               ],
-                            );
+                            ));
                 },
               ),
             ),
